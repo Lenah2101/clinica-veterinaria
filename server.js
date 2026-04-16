@@ -2,35 +2,31 @@ const express = require('express');
 require('dotenv').config();
 
 const app = express();
-const pool = require('./db');
 
-const rotaTutores = require('./routes/tutores');
-const rotaAnimais = require('./routes/animais');
-const rotaConsultas = require('./routes/consultas');
+const rotaTutoresHNG = require('./routes/tutores');
+const rotaAnimaisHNG = require('./routes/animais');
+const rotaConsultasHNG = require('./routes/consultas');
+
+const sequelize = require('./config/database');
 
 app.use(express.json());
-
-app.use('/tutores', rotaTutores);
-app.use('/animais', rotaAnimais);
-app.use('/consultas', rotaConsultas);
+app.use('/tutores', rotaTutoresHNG);
+app.use('/animais', rotaAnimaisHNG);
+app.use('/consultas', rotaConsultasHNG);
 
 app.get('/', async (req, res) => {
-  try {
-    const resultado = await pool.query('SELECT NOW()');
-
-    res.json({
-      mensagem: 'Banco conectado!',
-      horario: resultado.rows[0]
-    });
-
-  } catch (erro) {
-    console.log(erro);
-
-    res.status(500).json({
-      erro: 'Falha na conexão com banco'
-    });
-  }
+  res.json({
+    mensagem: 'API Clínica Veterinária com ORM funcionando!'
+  });
 });
+
+sequelize.authenticate()
+  .then(() => {
+    console.log('ORM conectado ao PostgreSQL!');
+  })
+  .catch((erro) => {
+    console.log('Erro ORM:', erro);
+  });
 
 const PORT = process.env.PORT || 3000;
 

@@ -1,82 +1,91 @@
+// routes/tutores.js
+
 const express = require('express');
 const router = express.Router();
-const pool = require('../db');
 
-router.get('/', async (req, res) => {
+const Tutor = require('../models/Tutor');
+
+
+async function listarTutoresHNG(req, res) {
   try {
-    const resultado = await pool.query('SELECT * FROM tutores ORDER BY id');
-
-    res.json(resultado.rows);
-  } catch (erro) {
-    console.log(erro);
-    res.status(500).json({ erro: 'Erro ao buscar tutores' });
-  }
-});
-
-router.post('/', async (req, res) => {
-  try {
-    const { nome, telefone, email } = req.body;
-
-    const resultado = await pool.query(
-      'INSERT INTO tutores (nome, telefone, email) VALUES ($1, $2, $3) RETURNING *',
-      [nome, telefone, email]
-    );
-
-    res.status(201).json(resultado.rows[0]);
+    const dados = await Tutor.findAll();
+    res.json(dados);
 
   } catch (erro) {
-    console.log(erro);
-    res.status(500).json({ erro: 'Erro ao cadastrar tutor' });
+    res.status(500).json({
+      erro: 'Erro ao listar tutores'
+    });
   }
-});
+}
 
-router.get('/:id', async (req, res) => {
+
+async function buscarTutorHNG(req, res) {
   try {
-    const { id } = req.params;
-
-    const resultado = await pool.query(
-      'SELECT * FROM tutores WHERE id = $1',
-      [id]
-    );
-
-    res.json(resultado.rows[0]);
+    const dado = await Tutor.findByPk(req.params.id);
+    res.json(dado);
 
   } catch (erro) {
-    res.status(500).json({ erro: 'Erro ao buscar tutor' });
+    res.status(500).json({
+      erro: 'Erro ao buscar tutor'
+    });
   }
-});
+}
 
-router.put('/:id', async (req, res) => {
+
+async function criarTutorHNG(req, res) {
   try {
-    const { id } = req.params;
-    const { nome, telefone, email } = req.body;
+    const novo = await Tutor.create(req.body);
 
-    const resultado = await pool.query(
-      'UPDATE tutores SET nome=$1, telefone=$2, email=$3 WHERE id=$4 RETURNING *',
-      [nome, telefone, email, id]
-    );
-
-    res.json(resultado.rows[0]);
+    res.status(201).json(novo);
 
   } catch (erro) {
-    res.status(500).json({ erro: 'Erro ao atualizar tutor' });
+    res.status(500).json({
+      erro: 'Erro ao cadastrar tutor'
+    });
   }
-});
+}
 
-router.delete('/:id', async (req, res) => {
+
+async function atualizarTutorHNG(req, res) {
   try {
-    const { id } = req.params;
+    await Tutor.update(req.body, {
+      where: { id: req.params.id }
+    });
 
-    await pool.query(
-      'DELETE FROM tutores WHERE id = $1',
-      [id]
-    );
+    const atualizado = await Tutor.findByPk(req.params.id);
 
-    res.json({ mensagem: 'Tutor removido com sucesso' });
+    res.json(atualizado);
 
   } catch (erro) {
-    res.status(500).json({ erro: 'Erro ao remover tutor' });
+    res.status(500).json({
+      erro: 'Erro ao atualizar tutor'
+    });
   }
-});
+}
+
+
+async function deletarTutorHNG(req, res) {
+  try {
+    await Tutor.destroy({
+      where: { id: req.params.id }
+    });
+
+    res.json({
+      mensagem: 'Tutor removido com sucesso'
+    });
+
+  } catch (erro) {
+    res.status(500).json({
+      erro: 'Erro ao remover tutor'
+    });
+  }
+}
+
+
+router.get('/', listarTutoresHNG);
+router.get('/:id', buscarTutorHNG);
+router.post('/', criarTutorHNG);
+router.put('/:id', atualizarTutorHNG);
+router.delete('/:id', deletarTutorHNG);
 
 module.exports = router;

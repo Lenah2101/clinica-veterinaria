@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-router.get('/', async (req, res) => {
+
+async function listarAnimaisHNG(req, res) {
   try {
     const resultado = await pool.query(
       'SELECT * FROM animais ORDER BY id'
@@ -12,17 +13,19 @@ router.get('/', async (req, res) => {
 
   } catch (erro) {
     console.log(erro);
-    res.status(500).json({ erro: 'Erro ao listar animais' });
+    res.status(500).json({
+      erro: 'Erro ao listar animais'
+    });
   }
-});
+}
 
 
-router.get('/:id/consultas', async (req, res) => {
+async function listarConsultasAnimalHNG(req, res) {
   try {
     const { id } = req.params;
 
     const resultado = await pool.query(
-      `SELECT 
+      `SELECT
         animais.nome AS animal,
         consultas.id,
         consultas.data_consulta,
@@ -30,7 +33,7 @@ router.get('/:id/consultas', async (req, res) => {
         consultas.diagnostico,
         consultas.veterinario
       FROM consultas
-      JOIN animais 
+      JOIN animais
         ON consultas.animal_id = animais.id
       WHERE animais.id = $1
       ORDER BY consultas.id`,
@@ -45,10 +48,10 @@ router.get('/:id/consultas', async (req, res) => {
       erro: 'Erro ao buscar consultas do animal'
     });
   }
-});
+}
 
 
-router.get('/:id', async (req, res) => {
+async function buscarAnimalHNG(req, res) {
   try {
     const { id } = req.params;
 
@@ -61,12 +64,14 @@ router.get('/:id', async (req, res) => {
 
   } catch (erro) {
     console.log(erro);
-    res.status(500).json({ erro: 'Erro ao buscar animal' });
+    res.status(500).json({
+      erro: 'Erro ao buscar animal'
+    });
   }
-});
+}
 
 
-router.post('/', async (req, res) => {
+async function criarAnimalHNG(req, res) {
   try {
     const {
       nome,
@@ -88,12 +93,14 @@ router.post('/', async (req, res) => {
 
   } catch (erro) {
     console.log(erro);
-    res.status(500).json({ erro: 'Erro ao cadastrar animal' });
+    res.status(500).json({
+      erro: 'Erro ao cadastrar animal'
+    });
   }
-});
+}
 
 
-router.put('/:id', async (req, res) => {
+async function atualizarAnimalHNG(req, res) {
   try {
     const { id } = req.params;
 
@@ -121,12 +128,14 @@ router.put('/:id', async (req, res) => {
 
   } catch (erro) {
     console.log(erro);
-    res.status(500).json({ erro: 'Erro ao atualizar animal' });
+    res.status(500).json({
+      erro: 'Erro ao atualizar animal'
+    });
   }
-});
+}
 
 
-router.delete('/:id', async (req, res) => {
+async function deletarAnimalHNG(req, res) {
   try {
     const { id } = req.params;
 
@@ -141,8 +150,18 @@ router.delete('/:id', async (req, res) => {
 
   } catch (erro) {
     console.log(erro);
-    res.status(500).json({ erro: 'Erro ao remover animal' });
+    res.status(500).json({
+      erro: 'Erro ao remover animal'
+    });
   }
-});
+}
+
+
+router.get('/', listarAnimaisHNG);
+router.get('/:id/consultas', listarConsultasAnimalHNG);
+router.get('/:id', buscarAnimalHNG);
+router.post('/', criarAnimalHNG);
+router.put('/:id', atualizarAnimalHNG);
+router.delete('/:id', deletarAnimalHNG);
 
 module.exports = router;

@@ -59,6 +59,7 @@ async function criarConsultaHNG(req, res) {
     res.status(201).json(resultado.rows[0]);
 
   } catch (erro) {
+    console.log(erro);
     res.status(500).json({
       erro: 'Erro ao cadastrar consulta'
     });
